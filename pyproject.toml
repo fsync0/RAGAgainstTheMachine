@@ -1,0 +1,26 @@
+[project]
+name = "ragagainstthemachine"
+version = "0.1.0"
+description = "rag against the machine"
+readme = "README.md"
+authors = [
+    { name = "ABDESSAMAD EL BOUAZZAOUI", email = "mail.elbouazzaoui@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fire>=0.7.1",
+    "joblib>=1.6.0",
+    "langchain-text-splitters>=1.1.3",
+    "pydantic>=2.14.1",
+    "tqdm>=4.70.1",
+]
+
+[dependency-groups]
+dev = [
+    "flake8>=7.0.0",
+    "mypy>=1.10.0",
+    "pytest>=8.0.0",
+]
+
+[tool.uv]
+package = false
