@@ -6,13 +6,15 @@ readme = "README.md"
 authors = [
     { name = "ABDESSAMAD EL BOUAZZAOUI", email = "mail.elbouazzaoui@gmail.com" }
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
     "fire>=0.7.1",
-    "joblib>=1.6.0",
     "langchain-text-splitters>=1.1.3",
     "pydantic>=2.14.1",
+    "rank-bm25>=0.2.2",
     "tqdm>=4.70.1",
+    "torch>=2.0.0",
+    "transformers>=4.45.0",
 ]
 
 [dependency-groups]
