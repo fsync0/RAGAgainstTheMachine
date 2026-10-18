@@ -13,6 +13,15 @@ class SourceFile(BaseModel):
     text: str
 
 
+class SourceChunk(BaseModel):
+    """A chunk of text and its location in a source file."""
+
+    file_path: str
+    text: str
+    first_character_index: int
+    last_character_index: int
+
+
 class MinimalSource(BaseModel):
     """A location in a source file."""
 
