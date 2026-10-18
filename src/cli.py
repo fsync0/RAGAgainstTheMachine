@@ -3,6 +3,7 @@
 import fire
 
 from src.indexer import Indexer
+from src.retrieval.retriever import Retriever
 
 
 class RagCli:
@@ -40,6 +41,29 @@ class RagCli:
         return (
             "Ingestion complete! "
             f"Indexed {indexed_chunk_count} chunks under {output_path}/"
+        )
+
+    def search(
+        self,
+        query: str,
+        k: str = "5",
+        output_path: str = "data/processed",
+    ) -> str:
+        """Return the top-k sources for a query."""
+        result_count = self._get_int(k)
+        if result_count is None:
+            return "k must be a positive integer."
+
+        sources = Retriever(output_path).search(query, result_count)
+        if not sources:
+            return "No sources found."
+        return "\n".join(
+            (
+                f"{source.file_path} "
+                f"[{source.first_character_index}:"
+                f"{source.last_character_index}]"
+            )
+            for source in sources
         )
 
 
