@@ -6,6 +6,7 @@ from src.schemas import SourceFile
 
 ALLOWED_SUFFIXES = {".py", ".md", ".txt"}
 
+
 class Loader:
     """Find and read source files."""
 
@@ -45,10 +46,10 @@ class Loader:
     def load(self, folder_path: str) -> list[SourceFile]:
         """Load every supported file in a folder."""
         files = self.find_files(folder_path)
-        sources = []
+        sources: list[SourceFile] = []
 
         for file_path in files:
-            source = read_file(file_path)
+            source = self.read_file(file_path)
             if source is not None:
                 sources.append(source)
         return sources
