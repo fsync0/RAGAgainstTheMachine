@@ -8,4 +8,10 @@ def tokenize(text: str) -> list[str]:
     for char in string.punctuation:
         if char != "_":
             text = text.replace(char, " ")
-    return text.split()
+
+    tokens: list[str] = []
+    for token in text.split():
+        tokens.append(token)
+        if "_" in token:
+            tokens.extend(part for part in token.split("_") if part)
+    return tokens

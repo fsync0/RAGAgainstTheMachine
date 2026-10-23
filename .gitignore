@@ -9,3 +9,5 @@ data/processed/
 data/output/
 *.pkl
 .env
+moulinette
+moulinette.zip

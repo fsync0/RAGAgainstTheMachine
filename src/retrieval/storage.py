@@ -21,7 +21,7 @@ class Storage:
             return None
 
         tokens = [
-            tokenize(chunk.text)
+            tokenize(chunk.file_path) + tokenize(chunk.text)
             for chunk in tqdm(chunks, desc="Tokenizing", unit="chunk")
         ]
         if not any(tokens):
