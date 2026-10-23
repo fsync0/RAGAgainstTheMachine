@@ -13,11 +13,34 @@ class Retriever:
     def __init__(self, output_path: str) -> None:
         """Load the stored chunks and BM25 index."""
         self.chunks: list[SourceChunk] = []
+        self.chunks_by_location: dict[tuple[str, int, int], SourceChunk] = {}
         self.bm25: BM25Okapi | None = None
 
         data = Storage().load(output_path)
         if data is not None:
             self.chunks, self.bm25 = data
+            self.chunks_by_location = {
+                (
+                    chunk.file_path,
+                    chunk.first_character_index,
+                    chunk.last_character_index,
+                ): chunk
+                for chunk in self.chunks
+            }
+
+    def get_chunks(self, sources: list[MinimalSource]) -> list[SourceChunk]:
+        """Return complete chunks for saved source locations."""
+        chunks: list[SourceChunk] = []
+        for source in sources:
+            key = (
+                source.file_path,
+                source.first_character_index,
+                source.last_character_index,
+            )
+            chunk = self.chunks_by_location.get(key)
+            if chunk is not None:
+                chunks.append(chunk)
+        return chunks
 
     def search_chunks(self, query: str, k: int) -> list[SourceChunk]:
         """Return the top-k complete source chunks for a query."""

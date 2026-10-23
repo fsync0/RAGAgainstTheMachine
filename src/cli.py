@@ -6,11 +6,16 @@ import fire
 from tqdm import tqdm
 
 from src.dataset_io import load_dataset, save_json
-from src.evaluation import evaluate_results
+from src.evaluation import evaluate_results, load_search_results
 from src.generation.generator import Generator
 from src.indexer import Indexer
 from src.retrieval.retriever import Retriever
-from src.schemas import MinimalSearchResults, StudentSearchResults
+from src.schemas import (
+    MinimalAnswer,
+    MinimalSearchResults,
+    StudentSearchResults,
+    StudentSearchResultsAndAnswer,
+)
 
 
 class RagCli:
@@ -132,6 +137,53 @@ class RagCli:
 
         chunks = Retriever(index_path).search_chunks(query, result_count)
         return Generator().answer(query, chunks, token_count)
+
+    def answer_dataset(
+        self,
+        student_search_results_path: str,
+        save_directory: str = "data/output/search_results_and_answer",
+        index_path: str = "data/processed",
+        max_new_tokens: str = "256",
+    ) -> str:
+        """Generate answers for every search result in a dataset."""
+        token_count = self._get_int(max_new_tokens)
+        if token_count is None:
+            return "max_new_tokens must be a positive integer."
+
+        student_results = load_search_results(student_search_results_path)
+        if student_results is None:
+            return "Could not load the search results."
+
+        retriever = Retriever(index_path)
+        generator = Generator()
+        answers: list[MinimalAnswer] = []
+        for result in tqdm(
+            student_results.search_results,
+            desc="Answering",
+            unit="question",
+        ):
+            chunks = retriever.get_chunks(result.retrieved_sources)
+            answer = generator.answer(result.question, chunks, token_count)
+            answers.append(
+                MinimalAnswer(
+                    question_id=result.question_id,
+                    question=result.question,
+                    retrieved_sources=result.retrieved_sources,
+                    answer=answer,
+                )
+            )
+
+        results = StudentSearchResultsAndAnswer(
+            search_results=answers,
+            k=student_results.k,
+        )
+        output_path = (
+            Path(save_directory)
+            / Path(student_search_results_path).name
+        )
+        if not save_json(results, str(output_path)):
+            return "Could not save the answers."
+        return f"Saved student_search_results_and_answer to {output_path}"
 
     def evaluate(
         self,
