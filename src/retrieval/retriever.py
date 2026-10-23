@@ -19,8 +19,8 @@ class Retriever:
         if data is not None:
             self.chunks, self.bm25 = data
 
-    def search(self, query: str, k: int) -> list[MinimalSource]:
-        """Return the top-k sources for a query."""
+    def search_chunks(self, query: str, k: int) -> list[SourceChunk]:
+        """Return the top-k complete source chunks for a query."""
         if not query.strip() or k < 1 or self.bm25 is None:
             return []
 
@@ -33,11 +33,16 @@ class Retriever:
             range(len(scores)),
             key=lambda index: (-scores[index], index),
         )[:k]
+        return [self.chunks[index] for index in indexes]
+
+    def search(self, query: str, k: int) -> list[MinimalSource]:
+        """Return the top-k source locations for a query."""
+        chunks = self.search_chunks(query, k)
         return [
             MinimalSource(
-                file_path=self.chunks[index].file_path,
-                first_character_index=self.chunks[index].first_character_index,
-                last_character_index=self.chunks[index].last_character_index,
+                file_path=chunk.file_path,
+                first_character_index=chunk.first_character_index,
+                last_character_index=chunk.last_character_index,
             )
-            for index in indexes
+            for chunk in chunks
         ]

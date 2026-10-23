@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from src.dataset_io import load_dataset, save_json
 from src.evaluation import evaluate_results
+from src.generation.generator import Generator
 from src.indexer import Indexer
 from src.retrieval.retriever import Retriever
 from src.schemas import MinimalSearchResults, StudentSearchResults
@@ -112,6 +113,25 @@ class RagCli:
         if not save_json(results, str(output_path)):
             return "Could not save the search results."
         return f"Saved student_search_results to {output_path}"
+
+    def answer(
+        self,
+        query: str,
+        k: str = "5",
+        index_path: str = "data/processed",
+        max_new_tokens: str = "256",
+    ) -> str:
+        """Generate an answer from retrieved source chunks."""
+        result_count = self._get_int(k)
+        if result_count is None:
+            return "k must be a positive integer."
+
+        token_count = self._get_int(max_new_tokens)
+        if token_count is None:
+            return "max_new_tokens must be a positive integer."
+
+        chunks = Retriever(index_path).search_chunks(query, result_count)
+        return Generator().answer(query, chunks, token_count)
 
     def evaluate(
         self,
