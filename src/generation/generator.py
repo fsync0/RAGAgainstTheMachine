@@ -29,10 +29,12 @@ class Generator:
             from transformers import AutoModelForCausalLM, AutoTokenizer
 
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
-            self.model.to(self.device)
-            self.model.eval()
+            tokenizer: Any = AutoTokenizer.from_pretrained(self.model_name)
+            model: Any = AutoModelForCausalLM.from_pretrained(self.model_name)
+            model.to(self.device)
+            model.eval()
+            self.tokenizer = tokenizer
+            self.model = model
             self.torch = torch
         except Exception:
             self.model = None
@@ -55,26 +57,33 @@ class Generator:
         if max_new_tokens < 1 or not self.load_model():
             return "The local model could not be loaded."
 
+        tokenizer = self.tokenizer
+        model = self.model
+        torch = self.torch
+        if tokenizer is None or model is None or torch is None:
+            return "The local model could not be loaded."
+
         try:
             prompt = build_prompt(question, sources)
             messages = [{"role": "user", "content": prompt}]
-            text = self.tokenizer.apply_chat_template(
+            text = tokenizer.apply_chat_template(
                 messages,
                 tokenize=False,
                 add_generation_prompt=True,
                 enable_thinking=False,
             )
-            inputs = self.tokenizer(text, return_tensors="pt").to(self.device)
-            with self.torch.no_grad():
-                output = self.model.generate(
+            inputs = tokenizer(text, return_tensors="pt").to(self.device)
+            with torch.no_grad():
+                output = model.generate(
                     **inputs,
                     max_new_tokens=max_new_tokens,
                     do_sample=False,
                 )
             answer_tokens = output[0][inputs.input_ids.shape[1]:]
-            return self.tokenizer.decode(
+            generated = tokenizer.decode(
                 answer_tokens,
                 skip_special_tokens=True,
-            ).strip()
+            )
+            return str(generated).strip()
         except Exception:
             return "The local model could not generate an answer."

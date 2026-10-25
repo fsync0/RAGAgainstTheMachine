@@ -60,4 +60,7 @@ class LoaderTest(unittest.TestCase):
 
             sources = Loader().load(str(root))
 
-            self.assertEqual([source.text for source in sources], ["first", "second"])
+            self.assertEqual(
+                [source.text for source in sources],
+                ["first", "second"],
+            )

@@ -48,12 +48,18 @@ class Storage:
             return False
         return True
 
-    def load(self, output_path: str) -> tuple[list[SourceChunk], BM25Okapi] | None:
+    def load(
+        self,
+        output_path: str,
+    ) -> tuple[list[SourceChunk], BM25Okapi] | None:
         """Load chunks and the BM25 index."""
         try:
             with (Path(output_path) / INDEX_FILE).open("rb") as file:
                 data = pickle.load(file)
-            chunks = [SourceChunk.model_validate(item) for item in data["chunks"]]
+            chunks = [
+                SourceChunk.model_validate(item)
+                for item in data["chunks"]
+            ]
             bm25 = data["bm25"]
         except (
             OSError,

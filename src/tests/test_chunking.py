@@ -49,7 +49,9 @@ class ChunkerTest(unittest.TestCase):
         )
 
         chunks = Chunker().chunk([python_file, markdown_file], 30)
-        python_chunks = [chunk for chunk in chunks if chunk.file_path == "demo.py"]
+        python_chunks = [
+            chunk for chunk in chunks if chunk.file_path == "demo.py"
+        ]
         markdown_chunks = [
             chunk for chunk in chunks if chunk.file_path == "guide.md"
         ]

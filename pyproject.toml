@@ -26,3 +26,6 @@ dev = [
 
 [tool.uv]
 package = false
+
+[tool.mypy]
+exclude = "^data/"

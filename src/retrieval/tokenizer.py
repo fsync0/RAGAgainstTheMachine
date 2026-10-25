@@ -2,6 +2,7 @@
 
 import string
 
+
 def tokenize(text: str) -> list[str]:
     """Convert text into lowercase tokens."""
     text = text.lower()
